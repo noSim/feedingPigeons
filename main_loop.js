@@ -7,7 +7,8 @@ var width = canvas.width;
 var height = canvas.height;
 var ctx = canvas.getContext("2d");
 var eatableObjects = [];
-var pigeonObjects = []
+var pigeonObjects = [];
+var pigeonPool = [];
 var pigeonAssets = new PigeonAssets();
 pigeonAssets.loading().then(
   console.log("loading pigeon assets finished") // TODO prevent first draw if not loaded?
@@ -46,8 +47,27 @@ function spawnPigeonIfRequired() {
     var floorHeight = height * 4/5;
     var posY = floorHeight - feedOffset - pigeonHeight;
     var posX = Math.random() >= 0.5 ? - 32 : width; // either left or right of screen
-    pigeonObjects.push(new Pigeon(posX, posY, pigeonAssets, eatableObjects));
+    pigeonObjects.push(getPigeon(posX, posY));
   }
+}
+
+function getPigeon(posX, posY) {
+  if (pigeonPool.length === 0) {
+    console.log("created new pigeon")
+    var pigeon = new Pigeon(posX, posY, pigeonAssets, eatableObjects, () => removePigeon(pigeon));
+    return pigeon;
+  } else {
+    console.log("reused pigeon")
+    const pigeon = pigeonPool[0];
+    pigeon.reset(posX, posY);
+    pigeonPool.splice(0, 1);
+    return pigeon;
+  }
+}
+
+function removePigeon(pigeon) {
+  pigeonPool.push(pigeon);
+  pigeonObjects.splice(pigeonObjects.indexOf(Pigeon), 1);
 }
 
 function draw() {

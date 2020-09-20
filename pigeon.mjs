@@ -1,9 +1,10 @@
 import GameObject from "./game_object.mjs"
 
 export default class Pigeon extends GameObject {
-  constructor(x, y, pigeonAssets, eatables) {
+  constructor(x, y, pigeonAssets, eatables, pigeonHomeCallback) {
     super(x, y);
     this.assets = pigeonAssets;
+    this.pigeonHomeCallback = pigeonHomeCallback;
     this.states = {
       eating: 0,
       walking: 1, 
@@ -12,24 +13,34 @@ export default class Pigeon extends GameObject {
       starting: 4,
       flyingHome: 5
     }
-    this.currentState = this.states.flying;
     this.frameCount = 8;
-    this.currentFrame = 0;
-    this.width = 32;
-    this.height = 32;
+    this.width = 32; // asset width
+    this.height = 32; // asset height
     this.headOffset = 5; // px distance from asset border to head
     this.feedOffset = 24; // px distance from asset top to feed
     this.animationSpeed = 150; // ms per frame
     this.landingDistance = 40; // distance to target where pigeon starts walking
-    this.accumulatedTime = 0;
     this.walkSpeed = 1 / 140; // px per ms in x direction
     this.flySpeed = 1 / 25; // px per ms in x direction
     this.landSpeed = 1 / 40; // px per ms in y direction (is calculated again dependendt on height)
     this.startSpeed = 1 / 40; // px per ms in y direction (is calculated again dependent on height)
-    this.flyHome = false;
     this.eatables = eatables;
-    this.target = eatables[Math.floor(Math.random() * eatables.length)]
-    this.directionRight = this.target.x > this.x
+    this.setDefaults()
+  }
+
+  reset(posX, posY) {
+    this.x = posX;
+    this.y = posY;
+    this.setDefaults();
+  }
+
+  setDefaults() {
+    this.currentState = this.states.flying;
+    this.currentFrame = 0;
+    this.accumulatedTime = 0;
+    this.flyHome = false;
+    this.target = this.eatables.length > 0 ? this.eatables[Math.floor(Math.random() * this.eatables.length)] : undefined;
+    this.directionRight = this.target ? this.target.x > this.x : true;
   }
 
   draw(ctx) {
@@ -144,7 +155,7 @@ export default class Pigeon extends GameObject {
       //out of screen?
       if (this.directionRight && this.x > width ||
         !this.directionRight && (this.x + this.width) < 0) {
-        // TODO remove this pigeon
+        this.pigeonHomeCallback()
         return;
       }
 
