@@ -73,7 +73,7 @@ export default class Pigeon extends GameObject {
     if (this.currentState !== this.states.eating
        && (!this.target || this.target.isEaten())) {
       this.target = this.eatables[Math.floor(Math.random() * this.eatables.length)];
-      this.directionRight = this.target.x > this.x
+      this.directionRight = this.target.x > (this.x + this.width / 2);
     }
 
     // eat
@@ -97,8 +97,14 @@ export default class Pigeon extends GameObject {
 
     // walking to target
     if (this.currentState === this.states.walking) {
-      if (this.directionRight && this.target.x > (this.x + this.width - this.headOffset) ||
-          !this.directionRight && this.target.x < (this.x - 1 + this.headOffset)) {
+      // walked to far, turn around
+      if (this.directionRight && this.target.x < Math.round(this.x) ||
+        !this.directionRight && this.target.x > (Math.round(this.x) + this.width)) {
+        this.directionRight = !this.directionRight;
+      }
+      // walk to target
+      if (this.directionRight && (this.target.x !== (Math.round(this.x) + this.width - this.headOffset)) ||
+          !this.directionRight && (this.target.x !== (Math.round(this.x) - 1 + this.headOffset))) {
         var direction = this.directionRight ? 1 : -1;
         this.x += timedelta * this.walkSpeed * direction;
 
