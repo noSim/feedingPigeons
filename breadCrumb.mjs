@@ -2,10 +2,17 @@ import GameObject from "./game_object.mjs"
 
 export default class BreadCrumb extends GameObject {
 
-  constructor(x, y) {
+  constructor(x, y, eatenCallback) {
     super(x, y);
     this.height = 1;
     this.width = 1;
+    this.eaten = false;
+    this.eatenCallback = eatenCallback;
+  }
+
+  reset(x, y) {
+    this.x = x;
+    this.y = y;
     this.eaten = false;
   }
 
@@ -38,6 +45,9 @@ export default class BreadCrumb extends GameObject {
   }
 
   eat() {
+    if (this.eaten === false) {
+      this.eatenCallback();
+    }
     this.eaten = true;
   }
 }

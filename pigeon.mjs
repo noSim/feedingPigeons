@@ -191,7 +191,6 @@ export default class Pigeon extends GameObject {
         this.target.eat();
       }
       if (this.currentFrame >= (this.frameCount - 1)) {
-        this.eatables.splice(this.eatables.indexOf(this.target), 1);
         this.currentState = this.states.walking;
       }
       return;

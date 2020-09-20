@@ -7,6 +7,7 @@ var width = canvas.width;
 var height = canvas.height;
 var ctx = canvas.getContext("2d");
 var eatableObjects = [];
+var eatablePool = [];
 var pigeonObjects = [];
 var pigeonPool = [];
 var pigeonAssets = new PigeonAssets();
@@ -51,25 +52,6 @@ function spawnPigeonIfRequired() {
   }
 }
 
-function getPigeon(posX, posY) {
-  if (pigeonPool.length === 0) {
-    console.log("created new pigeon")
-    var pigeon = new Pigeon(posX, posY, pigeonAssets, eatableObjects, () => removePigeon(pigeon));
-    return pigeon;
-  } else {
-    console.log("reused pigeon")
-    const pigeon = pigeonPool[0];
-    pigeon.reset(posX, posY);
-    pigeonPool.splice(0, 1);
-    return pigeon;
-  }
-}
-
-function removePigeon(pigeon) {
-  pigeonPool.push(pigeon);
-  pigeonObjects.splice(pigeonObjects.indexOf(Pigeon), 1);
-}
-
 function draw() {
   clearPane();
   eatableObjects.forEach(object => {
@@ -88,7 +70,7 @@ function clearPane(pane) {
 
 function processClick(x, y) {
   if (Math.round(y) < height * 4/5) {
-    eatableObjects.push(new BreadCrumb(Math.round(x), Math.round(y)));
+    eatableObjects.push(getBreadCrumb(x, y));
   }
 }
 
@@ -98,3 +80,37 @@ canvas.addEventListener('mouseup', function(e) {
   const y = (e.clientY - rect.top) * (height / rect.height);
   processClick(x, y);
 })
+
+function getBreadCrumb(x, y) {
+  if (eatablePool.length === 0) {
+    const crumb = new BreadCrumb(Math.round(x), Math.round(y), () => removeBreadCrumb(crumb));
+    return crumb;
+  } else {
+    const crumb = eatablePool[0];
+    crumb.reset(Math.round(x), Math.round(y));
+    eatablePool.splice(0, 1);
+    return crumb;
+  }
+}
+
+function removeBreadCrumb(crumb) {
+  eatablePool.push(crumb)
+  eatableObjects.splice(eatableObjects.indexOf(crumb), 1);
+}
+
+function getPigeon(posX, posY) {
+  if (pigeonPool.length === 0) {
+    var pigeon = new Pigeon(posX, posY, pigeonAssets, eatableObjects, () => removePigeon(pigeon));
+    return pigeon;
+  } else {
+    const pigeon = pigeonPool[0];
+    pigeon.reset(posX, posY);
+    pigeonPool.splice(0, 1);
+    return pigeon;
+  }
+}
+
+function removePigeon(pigeon) {
+  pigeonPool.push(pigeon);
+  pigeonObjects.splice(pigeonObjects.indexOf(Pigeon), 1);
+}
