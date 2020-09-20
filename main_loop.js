@@ -1,12 +1,18 @@
 import BreadCrumb from "./breadCrumb.mjs"
 import Pigeon from "./pigeon.mjs"
+import PigeonAssets from "./pigeonAssets.mjs"
 
 var canvas = document.getElementById("canvas");
 var width = canvas.width;
 var height = canvas.height;
 var ctx = canvas.getContext("2d");
-var gameObjects = [];
-gameObjects.push(new Pigeon(30, height * 4/5 - 24))
+var eatableObjects = [];
+var pigeonObjects = []
+var pigeonAssets = new PigeonAssets();
+pigeonAssets.loading().then(
+  console.log("loading pigeon assets finished") // TODO prevent first draw if not loaded?
+)
+
 
 var lastFrameTime = 0;
 var maxFPS = 180;
@@ -24,14 +30,28 @@ function mainLoop(timestamp) {
 window.requestAnimationFrame(mainLoop);
 
 function update(delta, widht, height) {
-  gameObjects.forEach(object => {
+  spawnPigeonIfRequired()
+  eatableObjects.forEach(object => {
     object.update(delta, widht, height);
   });
+  pigeonObjects.forEach(object => {
+    object.update(delta, widht, height);
+  })
+}
+
+function spawnPigeonIfRequired() {
+  if (eatableObjects.length > pigeonObjects.length) {
+    var posX = Math.random() >= 0.5 ? -32 : width;
+    pigeonObjects.push(new Pigeon(posX, height * 4/5 - 24, pigeonAssets, eatableObjects));
+  }
 }
 
 function draw() {
   clearPane();
-  gameObjects.forEach(object => {
+  eatableObjects.forEach(object => {
+    object.draw(ctx);
+  })
+  pigeonObjects.forEach(object => {
     object.draw(ctx);
   })
 }
@@ -44,7 +64,7 @@ function clearPane(pane) {
 
 function processClick(x, y) {
   if (Math.round(y) < height * 4/5) {
-    gameObjects.push(new BreadCrumb(Math.round(x), Math.round(y)));
+    eatableObjects.push(new BreadCrumb(Math.round(x), Math.round(y)));
   }
 }
 
