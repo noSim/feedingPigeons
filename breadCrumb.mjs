@@ -33,6 +33,10 @@ export default class BreadCrumb extends GameObject {
     return this.eaten;
   }
 
+  isOnFloor() {
+    return this.y === (this.floor - this.height);
+  }
+
   eat() {
     this.eaten = true;
   }

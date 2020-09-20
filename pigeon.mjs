@@ -78,6 +78,11 @@ export default class Pigeon extends GameObject {
 
     // eat
     if (this.currentState === this.states.eating) {
+      // wait until its on the ground
+      if (!this.target.isOnFloor()) {
+        return;
+      }
+
       this.accumulatedTime += timedelta;
       if (this.accumulatedTime >= this.animationSpeed) {
         this.accumulatedTime = 0;
