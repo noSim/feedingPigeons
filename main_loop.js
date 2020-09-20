@@ -40,7 +40,7 @@ function update(delta, widht, height) {
 }
 
 function spawnPigeonIfRequired() {
-  if (eatableObjects.length > pigeonObjects.length) {
+  if (eatableObjects.length > pigeonObjects.length * 3) {
     var posX = Math.random() >= 0.5 ? -32 : width;
     pigeonObjects.push(new Pigeon(posX, height * 4/5 - 24, pigeonAssets, eatableObjects));
   }
