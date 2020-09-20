@@ -3,7 +3,7 @@ export default class PigeonAssets {
     this.walk = new Image();
     this.walk.src = "/assets/pigeonWalk.png";
     this.fly = new Image();
-    this.fly.src = "/assets/pigeonWalk.png";
+    this.fly.src = "/assets/pigeonFly.png";
     this.land = new Image();
     this.land.src = "/assets/pigeonLand.png";
     this.eat = new Image();
