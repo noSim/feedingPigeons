@@ -1,10 +1,11 @@
 import GameObject from "./game_object.mjs"
 
 export default class Pigeon extends GameObject {
-  constructor(x, y, pigeonAssets, eatables, pigeonHomeCallback) {
+  constructor(x, y, pigeonAssets, eatables, pigeonHomeCallback, id) {
     super(x, y);
     this.assets = pigeonAssets;
     this.pigeonHomeCallback = pigeonHomeCallback;
+    this.id = id;
     this.states = {
       eating: 0,
       walking: 1, 

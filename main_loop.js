@@ -11,6 +11,7 @@ var eatablePool = [];
 var pigeonObjects = [];
 var pigeonPool = [];
 var pigeonAssets = new PigeonAssets();
+var pigeonCounter = 1;
 pigeonAssets.loading().then(
   console.log("loading pigeon assets finished") // TODO prevent first draw if not loaded?
 )
@@ -32,6 +33,7 @@ function mainLoop(timestamp) {
 window.requestAnimationFrame(mainLoop);
 
 function update(delta, widht, height) {
+  // console.log("Pigeons active: " + pigeonObjects.length + " pooled: " + pigeonPool.length + " | " + "Crumbs active: " + eatableObjects.length + " pooled: " + eatablePool.length);
   spawnPigeonIfRequired()
   eatableObjects.forEach(object => {
     object.update(delta, widht, height);
@@ -43,12 +45,7 @@ function update(delta, widht, height) {
 
 function spawnPigeonIfRequired() {
   if (eatableObjects.length > pigeonObjects.length * 3) {
-    var feedOffset = 24; // distance top to feed in pigeon asset
-    var pigeonHeight = 32 + Math.random() * 32; // height is random 32 to 64 px
-    var floorHeight = height * 4/5;
-    var posY = floorHeight - feedOffset - pigeonHeight;
-    var posX = Math.random() >= 0.5 ? - 32 : width; // either left or right of screen
-    pigeonObjects.push(getPigeon(posX, posY));
+    pigeonObjects.push(getPigeon());
   }
 }
 
@@ -82,15 +79,13 @@ canvas.addEventListener('mouseup', function(e) {
 })
 
 function getBreadCrumb(x, y) {
-  if (eatablePool.length === 0) {
-    const crumb = new BreadCrumb(Math.round(x), Math.round(y), () => removeBreadCrumb(crumb));
-    return crumb;
+  var crumb = eatablePool.pop();
+  if (!crumb) {
+    crumb = new BreadCrumb(Math.round(x), Math.round(y), () => removeBreadCrumb(crumb));
   } else {
-    const crumb = eatablePool[0];
     crumb.reset(Math.round(x), Math.round(y));
-    eatablePool.splice(0, 1);
-    return crumb;
   }
+  return crumb;
 }
 
 function removeBreadCrumb(crumb) {
@@ -98,19 +93,22 @@ function removeBreadCrumb(crumb) {
   eatableObjects.splice(eatableObjects.indexOf(crumb), 1);
 }
 
-function getPigeon(posX, posY) {
-  if (pigeonPool.length === 0) {
-    var pigeon = new Pigeon(posX, posY, pigeonAssets, eatableObjects, () => removePigeon(pigeon));
-    return pigeon;
+function getPigeon() {
+  var pigeon = pigeonPool.pop();
+  var feedOffset = 24; // distance top to feed in pigeon asset
+  var pigeonHeight = 32 + Math.random() * 32; // height is random 32 to 64 px
+  var floorHeight = height * 4/5;
+  var posY = floorHeight - feedOffset - pigeonHeight;
+  var posX = Math.random() >= 0.5 ? - 32 : width; // either left or right of screen
+  if (!pigeon) {
+    pigeon = new Pigeon(posX, posY, pigeonAssets, eatableObjects, () => removePigeon(pigeon), pigeonCounter++);
   } else {
-    const pigeon = pigeonPool[0];
     pigeon.reset(posX, posY);
-    pigeonPool.splice(0, 1);
-    return pigeon;
   }
+  return pigeon;
 }
 
 function removePigeon(pigeon) {
+  pigeonObjects.splice(pigeonObjects.indexOf(pigeon), 1);
   pigeonPool.push(pigeon);
-  pigeonObjects.splice(pigeonObjects.indexOf(Pigeon), 1);
 }
