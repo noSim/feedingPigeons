@@ -1,13 +1,13 @@
 export default class PigeonAssets {
   constructor() {
     this.walk = new Image();
-    this.walk.src = "/assets/pigeonWalk.png";
+    this.walk.src = "./assets/pigeonWalk.png";
     this.fly = new Image();
-    this.fly.src = "/assets/pigeonFly.png";
+    this.fly.src = "./assets/pigeonFly.png";
     this.land = new Image();
-    this.land.src = "/assets/pigeonLand.png";
+    this.land.src = "./assets/pigeonLand.png";
     this.eat = new Image();
-    this.eat.src = "/assets/pigeonEat.png";
+    this.eat.src = "./assets/pigeonEat.png";
   }
 
   loading() {
