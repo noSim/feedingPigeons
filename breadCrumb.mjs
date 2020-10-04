@@ -20,11 +20,11 @@ export default class BreadCrumb extends GameObject {
     if (!this.eaten) {
       // crumb
       ctx.fillStyle = "rgb(139,69,19)";
-      ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.fillRect(Math.round(this.x), Math.round(this.y), this.width, this.height);
       // shadow
       if (this.floor) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-        ctx.fillRect(this.x, this.floor, this.width, this.height);
+        ctx.fillRect(this.x, Math.round(this.floor), this.width, this.height);
       }
     }
   }

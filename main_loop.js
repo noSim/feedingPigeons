@@ -3,8 +3,9 @@ import Pigeon from "./pigeon.mjs"
 import PigeonAssets from "./pigeonAssets.mjs"
 
 var canvas = document.getElementById("canvas");
-var width = canvas.width;
-var height = canvas.height;
+var width = canvas.width = 300;
+var height = canvas.height = width * window.innerHeight / window.innerWidth;
+
 var ctx = canvas.getContext("2d");
 var eatableObjects = [];
 var eatablePool = [];
@@ -31,6 +32,16 @@ function mainLoop(timestamp) {
   window.requestAnimationFrame(mainLoop);
 };
 window.requestAnimationFrame(mainLoop);
+
+window.onload = window.onresize = function() {
+  resetGameObjects();
+  if (window.innerHeight > window.innerWidth) {
+    width = canvas.width = 150;
+  } else {
+    width = canvas.width = 300;
+  }
+  height = canvas.height = width * window.innerHeight / window.innerWidth;
+}
 
 function update(delta, widht, height) {
   // console.log("Pigeons active: " + pigeonObjects.length + " pooled: " + pigeonPool.length + " | " + "Crumbs active: " + eatableObjects.length + " pooled: " + eatablePool.length);
@@ -63,6 +74,11 @@ function clearPane(pane) {
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = "teal";
   ctx.fillRect(0, 0, width, height);
+}
+
+function resetGameObjects() {
+  eatablePool.push.apply(eatablePool, eatableObjects.splice(0, eatableObjects.length));
+  pigeonPool.push.apply(pigeonPool, pigeonObjects.splice(0, pigeonObjects.length));
 }
 
 function processClick(x, y) {
@@ -109,6 +125,6 @@ function getPigeon() {
 }
 
 function removePigeon(pigeon) {
-  pigeonObjects.splice(pigeonObjects.indexOf(pigeon), 1);
   pigeonPool.push(pigeon);
+  pigeonObjects.splice(pigeonObjects.indexOf(pigeon), 1);
 }

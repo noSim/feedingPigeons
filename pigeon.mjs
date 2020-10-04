@@ -79,17 +79,20 @@ export default class Pigeon extends GameObject {
     // shadow
     if (this.floor) {
       ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-      ctx.fillRect(Math.round(this.x) + 4, this.floor, this.width - 8, 1);
+      ctx.fillRect(Math.round(this.x) + 4, Math.round(this.floor), this.width - 8, 1);
     }
     ctx.restore();
   }
 
   update(timedelta, width, height) {
     this.floor = (4/5) * height
-    
+
     // no food? -> prepare fly home
     if (this.eatables.length === 0 && !this.flyHome) {
       this.flyHome = true;
+      if (this.currentState == this.states.flying) {
+        this.currentState = this.states.flyingHome;
+      }
       // calculate takeoff speed
       var takeoffTime = this.animationSpeed * 7;
       var flyHeight = this.floor - this.feedOffset - 32 + Math.random() * 32;
