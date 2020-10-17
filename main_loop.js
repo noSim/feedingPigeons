@@ -13,10 +13,10 @@ var pigeonObjects = [];
 var pigeonPool = [];
 var pigeonAssets = new PigeonAssets();
 var pigeonCounter = 1;
+var showClickIndicatr = true;
 pigeonAssets.loading().then(
   console.log("loading pigeon assets finished") // TODO prevent first draw if not loaded?
 )
-
 
 var lastFrameTime = 0;
 var maxFPS = 180;
@@ -84,6 +84,10 @@ function resetGameObjects() {
 function processClick(x, y) {
   if (Math.round(y) < height * 4/5) {
     eatableObjects.push(getBreadCrumb(x, y));
+    if (showClickIndicatr) {
+      showClickIndicatr = false;
+      document.getElementById('clickIndicator').classList.add('fade');
+    }
   }
 }
 
