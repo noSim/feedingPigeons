@@ -1,22 +1,12 @@
-import BreadCrumb from "./breadCrumb.mjs"
-import Pigeon from "./pigeon.mjs"
-import PigeonAssets from "./pigeonAssets.mjs"
+import MainScene from "./mainScene.mjs"
+
 
 var canvas = document.getElementById("canvas");
 var width = canvas.width = 300;
 var height = canvas.height = width * window.innerHeight / window.innerWidth;
 
 var ctx = canvas.getContext("2d");
-var eatableObjects = [];
-var eatablePool = [];
-var pigeonObjects = [];
-var pigeonPool = [];
-var pigeonAssets = new PigeonAssets();
-var pigeonCounter = 1;
-var showClickIndicatr = true;
-pigeonAssets.loading().then(
-  console.log("loading pigeon assets finished") // TODO prevent first draw if not loaded?
-)
+var mainScene = new MainScene();
 
 var lastFrameTime = 0;
 var maxFPS = 180;
@@ -34,40 +24,22 @@ function mainLoop(timestamp) {
 window.requestAnimationFrame(mainLoop);
 
 window.onload = window.onresize = function() {
-  resetGameObjects();
   if (window.innerHeight > window.innerWidth) {
     width = canvas.width = 150;
   } else {
     width = canvas.width = 300;
   }
   height = canvas.height = width * window.innerHeight / window.innerWidth;
+  mainScene.resultionChanged();
 }
 
 function update(delta, widht, height) {
-  // console.log("Pigeons active: " + pigeonObjects.length + " pooled: " + pigeonPool.length + " | " + "Crumbs active: " + eatableObjects.length + " pooled: " + eatablePool.length);
-  spawnPigeonIfRequired()
-  eatableObjects.forEach(object => {
-    object.update(delta, widht, height);
-  });
-  pigeonObjects.forEach(object => {
-    object.update(delta, widht, height);
-  })
-}
-
-function spawnPigeonIfRequired() {
-  if (eatableObjects.length > pigeonObjects.length * 3) {
-    pigeonObjects.push(getPigeon());
-  }
+  mainScene.update(delta, widht, height);
 }
 
 function draw() {
   clearPane();
-  eatableObjects.forEach(object => {
-    object.draw(ctx);
-  })
-  pigeonObjects.forEach(object => {
-    object.draw(ctx);
-  })
+  mainScene.draw(ctx)
 }
 
 function clearPane(pane) {
@@ -76,19 +48,8 @@ function clearPane(pane) {
   ctx.fillRect(0, 0, width, height);
 }
 
-function resetGameObjects() {
-  eatablePool.push.apply(eatablePool, eatableObjects.splice(0, eatableObjects.length));
-  pigeonPool.push.apply(pigeonPool, pigeonObjects.splice(0, pigeonObjects.length));
-}
-
 function processClick(x, y) {
-  if (Math.round(y) < height * 4/5) {
-    eatableObjects.push(getBreadCrumb(x, y));
-    if (showClickIndicatr) {
-      showClickIndicatr = false;
-      document.getElementById('clickIndicator').classList.add('fade');
-    }
-  }
+  mainScene.processClick(x, y);
 }
 
 canvas.addEventListener('mouseup', function(e) {
@@ -97,38 +58,3 @@ canvas.addEventListener('mouseup', function(e) {
   const y = (e.clientY - rect.top) * (height / rect.height);
   processClick(x, y);
 })
-
-function getBreadCrumb(x, y) {
-  var crumb = eatablePool.pop();
-  if (!crumb) {
-    crumb = new BreadCrumb(Math.round(x), Math.round(y), () => removeBreadCrumb(crumb));
-  } else {
-    crumb.reset(Math.round(x), Math.round(y));
-  }
-  return crumb;
-}
-
-function removeBreadCrumb(crumb) {
-  eatablePool.push(crumb)
-  eatableObjects.splice(eatableObjects.indexOf(crumb), 1);
-}
-
-function getPigeon() {
-  var pigeon = pigeonPool.pop();
-  var feedOffset = 24; // distance top to feed in pigeon asset
-  var pigeonHeight = 32 + Math.random() * 32; // height is random 32 to 64 px
-  var floorHeight = height * 4/5;
-  var posY = floorHeight - feedOffset - pigeonHeight;
-  var posX = Math.random() >= 0.5 ? - 32 : width; // either left or right of screen
-  if (!pigeon) {
-    pigeon = new Pigeon(posX, posY, pigeonAssets, eatableObjects, () => removePigeon(pigeon), pigeonCounter++);
-  } else {
-    pigeon.reset(posX, posY);
-  }
-  return pigeon;
-}
-
-function removePigeon(pigeon) {
-  pigeonPool.push(pigeon);
-  pigeonObjects.splice(pigeonObjects.indexOf(pigeon), 1);
-}

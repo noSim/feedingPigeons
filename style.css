@@ -15,20 +15,3 @@ canvas {
   image-rendering: crisp-edges;
   touch-action: manipulation;
 }
-
-#clickIndicator {
-  color: rgba(255, 255, 255, 0.5);
-  z-index: 1;
-  position: absolute;
-  top: 30%;
-  width: 100%;
-  text-align: center;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.3s ease-out;
-  font-size: 4.0vh;
-}
-
-#clickIndicator.fade {
-  opacity: 0;
-}

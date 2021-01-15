@@ -10,7 +10,7 @@ export default class PigeonAssets {
     this.eat.src = "./assets/pigeonEat.png";
   }
 
-  loading() {
+  load() {
     var promiseWalk = new Promise((resolve, reject) => {
       this.walk.onload = () => resolve()
       this.walk.onerror = reject
