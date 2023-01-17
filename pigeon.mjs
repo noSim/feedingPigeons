@@ -12,7 +12,8 @@ export default class Pigeon extends GameObject {
       flying: 2,
       landing: 3,
       starting: 4,
-      flyingHome: 5
+      flyingHome: 5,
+      waiting: 6
     }
     this.frameCount = 8;
     this.width = 32; // asset width
@@ -40,6 +41,7 @@ export default class Pigeon extends GameObject {
     this.currentFrame = 0;
     this.accumulatedTime = 0;
     this.flyHome = false;
+    this.flyHomeDelay = this.getFlyHomeDelay()
     this.target = this.eatables.length > 0 ? this.eatables[Math.floor(Math.random() * this.eatables.length)] : undefined;
     this.directionRight = this.target ? this.target.x > this.x : true;
   }
@@ -71,6 +73,9 @@ export default class Pigeon extends GameObject {
       case this.states.flyingHome:
         imgToDraw = this.assets.fly;
         break;
+      case this.states.waiting:
+        imgToDraw = this.assets.walk;
+        break;
     }
     ctx.drawImage(imgToDraw,
       this.width * this.currentFrame, 0, this.width, this.height,
@@ -89,18 +94,26 @@ export default class Pigeon extends GameObject {
 
     // no food? -> prepare fly home
     if (this.eatables.length === 0 && !this.flyHome) {
-      this.flyHome = true;
-      if (this.currentState == this.states.flying) {
-        this.currentState = this.states.flyingHome;
-      }
-      // calculate takeoff speed
-      var takeoffTime = this.animationSpeed * 7;
-      var flyHeight = this.floor - this.feedOffset - 32 + Math.random() * 32;
-      this.startSpeed = flyHeight / takeoffTime;
+      // wait a bit if already on floor otheriwse fly home
+      if (this.flyHomeDelay >= 0
+         && (this.currentState === this.states.walking || this.currentState ===this.states.eating)) {
+        this.currentState = this.states.waiting
+        this.flyHomeDelay -= timedelta
+      } else {
+        this.flyHome = true;
+        this.flyHomeDelay = this.getFlyHomeDelay()
+        if (this.currentState == this.states.flying) {
+          this.currentState = this.states.flyingHome;
+        }
+        // calculate takeoff speed
+        var takeoffTime = this.animationSpeed * 7;
+        var flyHeight = this.floor - this.feedOffset - 32 + Math.random() * 32;
+        this.startSpeed = flyHeight / takeoffTime;
 
-      this.currentState = this.states.starting;
-      this.currentFrame = this.frameCount - 1;
-      return;
+        this.currentState = this.states.starting;
+        this.currentFrame = this.frameCount - 1;
+        return;
+      }
     }
 
     // find target and change direction
@@ -220,6 +233,15 @@ export default class Pigeon extends GameObject {
       }
       return;
     }
+
+    // waiting to fly home
+    if (this.currentState === this.states.waiting) {
+      // if target appears go on
+      if (this.target) {
+        this.currentState = this.states.walking
+      }
+      this.loopFrames(timedelta)
+    }
   }
 
   loopFrames(timedelta) {
@@ -248,5 +270,9 @@ export default class Pigeon extends GameObject {
         this.currentFrame = (this.currentFrame -1);
       }
      }
+  }
+
+  getFlyHomeDelay() {
+    return Math.random() * 1_000
   }
 }
